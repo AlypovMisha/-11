@@ -3,6 +3,7 @@ using LibraryForLabs;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Лабораторная_работа_11
 {
@@ -13,6 +14,7 @@ namespace Лабораторная_работа_11
             //------------------------------------------1 часть-----------------------------------
             ArrayList cars = new ArrayList(20);
             Console.WriteLine("\t\t|||1 часть|||");
+
             //Заполнение массива случайно
             Random rand = new Random();
             for (int i = 0; i < cars.Capacity; i++)
@@ -41,11 +43,10 @@ namespace Лабораторная_работа_11
                         break;
                 }
             }
-
+            //cars.Add(52);
             Print(cars);
             Console.WriteLine();
-
-            //-------------------------Запросы---------------------
+            ////-------------------------Запросы---------------------
             //Находим самый дорогой внедорожник
             OffRoadCar mostExpensiveOC = MostExpensiveOffRoadCar(cars);
             Console.WriteLine($"Самый дорогой внедорожник с ценой {mostExpensiveOC.Cost}");
@@ -54,7 +55,10 @@ namespace Лабораторная_работа_11
 
             //Для нахождения средней скорости легковых автомобилей            
             double averageSpeed = FindAverageSpeed(cars);
-            Console.WriteLine($"Средняя скорость легковых автомобилей: {averageSpeed}");
+            if (averageSpeed >= 0)
+                Console.WriteLine($"Средняя скорость легковых автомобилей: {averageSpeed}");
+            else
+                Console.WriteLine();
             Console.WriteLine();
 
             //Цвета внедорожников с включенным полным приводом
@@ -80,23 +84,107 @@ namespace Лабораторная_работа_11
             //-------------------------Клонирование и поиск---------------------
 
             //Клонирование коллекции
-            ArrayList clonedCars = (ArrayList)cars.Clone();
+            ArrayList clonedCars = new ArrayList(20);
+            //ArrayList clonedCars = new ArrayList(cars);
+
+            for (int i = 0; i < cars.Count; i++)
+            {
+                if (cars[i] is OffRoadCar)
+                {
+                    OffRoadCar c = (OffRoadCar)cars[i];
+                    OffRoadCar clonedCar = new OffRoadCar(c.Brand, c.ReleaseYear, c.Color, c.Cost, c.Clearance, c.LoadCapacity, c.Awd, c.OffRoadType, c.id.number);
+                    clonedCars.Add(clonedCar);
+                    continue;
+                }
+                if (cars[i] is PassengerCar)
+                {
+                    PassengerCar c = (PassengerCar)cars[i];
+                    PassengerCar clonedCar = new PassengerCar(c.Brand, c.ReleaseYear, c.Color, c.Cost, c.Clearance, c.NumberOfSeats, c.TopSpeed, c.id.number);
+                    clonedCars.Add(clonedCar);
+                    continue;
+                }
+                if (cars[i] is TruckCar)
+                {
+                    TruckCar c = (TruckCar)cars[i];
+                    TruckCar clonedCar = new TruckCar(c.Brand, c.ReleaseYear, c.Color, c.Cost, c.Clearance, c.LoadCapacity, c.id.number);
+                    clonedCars.Add(clonedCar);
+                    continue;
+                }
+                if (cars[i] is Cars)
+                {
+                    Cars c = (Cars)cars[i];
+                    Cars clonedCar = new Cars(c.Brand, c.ReleaseYear, c.Color, c.Cost, c.Clearance);
+                    clonedCars.Add(clonedCar);
+                }
+            }
+            if (cars[2] is Cars)
+            {
+                ((Cars)cars[2]).Cost = 777777;
+            }
             Console.WriteLine("\t\t|||Неотсортированный клон|||");
+            //cars[2] = new Cars("Ford", 1999, "White", 777777, 21);
             Print(clonedCars);
             Console.WriteLine("\t\t|||Отсортированный оригинал|||");
             cars.Sort();
             Print(cars);
-
             //Поиск
-            Cars carForFind = (Cars)cars[12];
-            carForFind.Init();
-            if (cars.BinarySearch(carForFind) >= 0)
-                Console.WriteLine("Элемент найден!");
-            else
-                Console.WriteLine("Элемент не найден!");
-            Console.WriteLine();
+            Console.WriteLine("Какой тип авто вы хотите найти? (1 - OffRoad, 2 - PassengerCar, 3 - TruckCars, 4 - Cars)");
+            switch (Console.ReadLine())
+            {
+                case "1":
+                    OffRoadCar offRoadCarForFind = new OffRoadCar();
+                    offRoadCarForFind.Init();
+                    cars.Sort();
+                    if (cars.BinarySearch(offRoadCarForFind) >= 0
+                        && cars[cars.BinarySearch(offRoadCarForFind)] is OffRoadCar
+                        && ((OffRoadCar)cars[cars.BinarySearch(offRoadCarForFind)]).LoadCapacity == offRoadCarForFind.LoadCapacity
+                        && cars[cars.BinarySearch(offRoadCarForFind)] is OffRoadCar
+                        && ((OffRoadCar)cars[cars.BinarySearch(offRoadCarForFind)]).Awd == offRoadCarForFind.Awd
+                        && ((OffRoadCar)cars[cars.BinarySearch(offRoadCarForFind)]).OffRoadType == offRoadCarForFind.OffRoadType)
+                        Console.WriteLine("Элемент найден!");
+                    else
+                        Console.WriteLine("Элемент не найден!");
+                    break;
+                case "2":
+                    PassengerCar passengerCarForFind = new PassengerCar();
+                    passengerCarForFind.Init();
+                    cars.Sort();
+                    if (cars.BinarySearch(passengerCarForFind) >= 0
+                        && cars[cars.BinarySearch(passengerCarForFind)] is PassengerCar
+                        && ((PassengerCar)cars[cars.BinarySearch(passengerCarForFind)]).TopSpeed == passengerCarForFind.TopSpeed
+                        && ((PassengerCar)cars[cars.BinarySearch(passengerCarForFind)]).NumberOfSeats == passengerCarForFind.NumberOfSeats)
+                        Console.WriteLine("Элемент найден!");
+                    else
+                        Console.WriteLine("Элемент не найден!");
+                    break;
+                case "3":
+                    TruckCar truckCarForFind = new TruckCar();
+                    truckCarForFind.Init();
+                    cars.Sort();
+                    if (cars.BinarySearch(truckCarForFind) >= 0
+                        && cars[cars.BinarySearch(truckCarForFind)] is TruckCar
+                        && ((TruckCar)cars[cars.BinarySearch(truckCarForFind)]).LoadCapacity == truckCarForFind.LoadCapacity)
+                    {
+                        Console.WriteLine("Элемент найден!");
+                    }
+                    else
+                        Console.WriteLine("Элемент не найден!");
+                    break;
+                case "4":
+                    Cars carForFind = new Cars();
+                    carForFind.Init();
+                    cars.Sort();
+                    if (cars.BinarySearch(carForFind) >= 0 && cars[cars.BinarySearch(carForFind)] is Cars)
+                        Console.WriteLine("Элемент найден!");
+                    else
+                        Console.WriteLine("Элемент не найден!");
+                    break;
+            }
 
-            //----------------------------------------------2 часть----------------------------------------
+
+            Console.WriteLine();
+            Console.ReadLine();
+            ////----------------------------------------------2 часть----------------------------------------
 
             Console.WriteLine("\t\t|||2 часть|||");
             Stack<Cars> stackCars = new Stack<Cars>(20);
@@ -133,8 +221,11 @@ namespace Лабораторная_работа_11
             //-------------------------Запросы---------------------
             //Находим самый дорогой внедорожник
             mostExpensiveOC = MostExpensiveOffRoadCar(stackCars);
-            Console.WriteLine($"Самый дорогой внедорожник с ценой {mostExpensiveOC.Cost}");
-            mostExpensiveOC.Show();
+            if (mostExpensiveOC != null)
+            {
+                Console.WriteLine($"Самый дорогой внедорожник с ценой {mostExpensiveOC.Cost}");
+                mostExpensiveOC.Show();
+            }
             Console.WriteLine();
 
             //Для нахождения средней скорости легковых автомобилей            
@@ -167,7 +258,6 @@ namespace Лабораторная_работа_11
             //Клонирование коллекции
             Stack<Cars> clonedStackCars = new Stack<Cars>(20);
             List<Cars> cars1 = stackCars.ToList();
-            //Stack<Cars> clonedCarStack = new Stack<Cars>(carStack); - так тоже можно наверное клонировать
             for (int i = 19; i >= 0; i--)
             {
                 clonedStackCars.Push((Cars)cars1[i].Clone());
@@ -182,12 +272,44 @@ namespace Лабораторная_работа_11
             Print(stackCars);
 
             //Поиск
-            Cars carForFind1 = new Cars();
-            carForFind1.Init();
-            if (stackCars.Contains(carForFind1))
-                Console.WriteLine("Элемент найден!");
-            else
-                Console.WriteLine("Элемент не найден!");
+            Console.WriteLine("Какой тип авто вы хотите найти? (1 - OffRoad, 2 - PassengerCar, 3 - TruckCars, 4 - Cars)");
+            switch (Console.ReadLine())
+            {
+                case "1":
+                    OffRoadCar offRoadCarForFind1 = new OffRoadCar();
+                    offRoadCarForFind1.Init();
+                    if (stackCars.Contains(offRoadCarForFind1))
+                        Console.WriteLine("Элемент найден!");
+                    else
+                        Console.WriteLine("Элемент не найден!");
+                    break;
+                case "2":
+                    PassengerCar passengerCarForFind1 = new PassengerCar();
+                    passengerCarForFind1.Init();
+                    if (stackCars.Contains(passengerCarForFind1))
+                        Console.WriteLine("Элемент найден!");
+                    else
+                        Console.WriteLine("Элемент не найден!");
+                    break;
+                case "3":
+                    TruckCar truckCarForFind1 = new TruckCar();
+                    truckCarForFind1.Init();
+                    if (stackCars.Contains(truckCarForFind1))
+                        Console.WriteLine("Элемент найден!");
+                    else
+                        Console.WriteLine("Элемент не найден!");
+                    break;
+                case "4":
+                    Cars carForFind1 = new Cars();
+                    carForFind1.Init();
+                    if (stackCars.Contains(carForFind1))
+                        Console.WriteLine("Элемент найден!");
+                    else
+                        Console.WriteLine("Элемент не найден!");
+                    break;
+            }
+
+
 
 
 
@@ -211,6 +333,7 @@ namespace Лабораторная_работа_11
             testCollections.SearchDictionaryCarsKeyString(testCollections.ReturnFirstCarForDictionary().ToString());
             testCollections.SearchDictionaryCarsValueString(testCollections.ReturnFirstCar());
             Console.WriteLine();
+
             //Нахождение срединного автомобиля
             Console.WriteLine("Нахождение срединного автомобиля");
             testCollections.SearchInListCars(testCollections.ReturnMiddleCar());
@@ -240,7 +363,6 @@ namespace Лабораторная_работа_11
             testCollections.SearchDictionaryCarsValueString(randCarForSearch);
             Console.ReadKey();
         }
-
 
         //Вывод массива
         public static void Print(ArrayList cars)
@@ -273,7 +395,13 @@ namespace Лабораторная_работа_11
                     mostExpensive = (OffRoadCar)item;
                 }
             }
-            return mostExpensive;
+            if (maxCost != 0)
+                return mostExpensive;
+            else
+            {
+                Console.WriteLine("Внедорожников не было в коллекции");
+                return null;
+            }
         }
         public static OffRoadCar MostExpensiveOffRoadCar(Stack<Cars> StackCars)
         {
@@ -287,7 +415,13 @@ namespace Лабораторная_работа_11
                     mostExpensive = (OffRoadCar)item;
                 }
             }
-            return mostExpensive;
+            if (mostExpensive is OffRoadCar)
+                return mostExpensive;
+            else
+            {
+                Console.WriteLine("Внедорожников не было в коллекции");
+                return null;
+            }
         }
 
         //Нахождение средней скорости легковых автомобилей
@@ -303,7 +437,7 @@ namespace Лабораторная_работа_11
                     count++;
                 }
             }
-            return count > 0 ? totalSpeed / count : 0;
+            return count > 0 ? totalSpeed / count : -1;
         }
         public static double FindAverageSpeed(Stack<Cars> StackCars)
         {
@@ -317,7 +451,7 @@ namespace Лабораторная_работа_11
                     count++;
                 }
             }
-            return count > 0 ? totalSpeed / count : 0;
+            return count > 0 ? totalSpeed / count : -1;
         }
 
         //Суммарная стоимость всех автомобилей
@@ -366,6 +500,8 @@ namespace Лабораторная_работа_11
                     index++;
                 }
             }
+            if (colors.Length == 0)
+                Console.WriteLine("Внедорожников с полным приводом не было");
             return colors;
         }
         public static string[] ColorsAWD(Stack<Cars> StackCars)
@@ -389,6 +525,8 @@ namespace Лабораторная_работа_11
                     index++;
                 }
             }
+            if(colors.Length == 0)
+                Console.WriteLine("Внедорожников с полным приводом не было");
             return colors;
         }
     }
